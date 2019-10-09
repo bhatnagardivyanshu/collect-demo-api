@@ -1,0 +1,6 @@
+ecosystem.config.js
+.env
+node_modules/
+uploads/
+*.txt
+.vscode

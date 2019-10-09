@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server
+    restart: always
+    environment:
+      - ROLE=server
+      - PORT=3000
+    ports:
+      - 8000:3000
+    volumes:
+      - collect
+    networks:
+      - collect-network
+    depends_on:
+      - redis
+      - rabbitmq
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: worker
+    restart: always
+    environment:
+      - ROLE=worker
+    volumes:
+      - collect
+    networks:
+      - collect-network
+    depends_on:
+      - redis
+      - rabbitmq
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    restart: always
+    networks:
+      - collect-network
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+    container_name: rabbit
+    restart: always
+    networks:
+      - collect-network
+
+networks:
+  collect-network:
+    driver: bridge
